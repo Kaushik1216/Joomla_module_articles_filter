@@ -1,0 +1,1 @@
+# Joomla_module_articles_filter
