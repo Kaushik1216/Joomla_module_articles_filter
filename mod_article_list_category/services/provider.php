@@ -1,13 +1,11 @@
 <?php
 
 /**
- * @package     [package]
- * @subpackage  articles list by category
+ * @package     kaushik.Site
+ * @subpackage  mod_articles_list_category
  *
- * @author     Kaushik Vishwakarma kaushik.vishwakarma2003@gmail.com
- * 
- * @copyright  [copyright]
- * @license    [license]
+ * @copyright   [copyright]
+ * @license     [license]
  */
 
 defined('_JEXEC') or die;
@@ -19,7 +17,7 @@ use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 
 /**
- * The articles list by category module service provider.
+ * The articles category module service provider.
  *
  * @since  __DEPLOY_VERSION__
  */
@@ -35,8 +33,8 @@ return new class () implements ServiceProviderInterface {
      */
     public function register(Container $container)
     {
-        $container->registerServiceProvider(new ModuleDispatcherFactory('\\Joomla\\Module\\ArticlesListByCategory'));
-        $container->registerServiceProvider(new HelperFactory('\\Joomla\\Module\\Articleslistbycategory\\Site\\Helper'));
+        $container->registerServiceProvider(new ModuleDispatcherFactory('\\Kaushik\\Module\\ArticlesListCategory'));
+        $container->registerServiceProvider(new HelperFactory('\\Kaushik\\Module\\ArticlesListCategory\\Site\\Helper'));
 
         $container->registerServiceProvider(new Module());
     }

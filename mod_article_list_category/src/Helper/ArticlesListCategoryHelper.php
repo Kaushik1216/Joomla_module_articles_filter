@@ -1,16 +1,14 @@
 <?php
 
 /**
- * @package     [package]
- * @subpackage  articles list by category
+ * @package     kaushik.Site
+ * @subpackage  mod_articles_list_category
  *
- * @author     Kaushik Vishwakarma kaushik.vishwakarma2003@gmail.com
- * 
- * @copyright  [copyright]
- * @license    [license]
+ * @copyright   [copyright]
+ * @license     [license]
  */
 
-namespace KaushikVishwakarma\Module\ArticlesListByCategory\Site\Helper;
+namespace Kaushik\Module\ArticlesListCategory\Site\Helper;
 
 use Joomla\Component\Content\Administrator\Extension\ContentComponent;
 use Joomla\Component\Content\Site\Helper\RouteHelper;
@@ -29,15 +27,14 @@ use Joomla\Registry\Registry;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Helper for mod_articles_list_by_category
+ * Helper for mod_articles_list_category
  *
  * @since  1.6
  */
-
-class ArticlesCategoryHelper implements DatabaseAwareInterface
+class ArticlesListCategoryHelper implements DatabaseAwareInterface
 {
-   use DatabaseAwareTrait;
- 
+    use DatabaseAwareTrait;
+
     /**
      * Retrieve a list of article
      *
@@ -51,40 +48,35 @@ class ArticlesCategoryHelper implements DatabaseAwareInterface
     public function getArticles(Registry $params, SiteApplication $app)
     {
         $factory = $app->bootComponent('com_content')->getMVCFactory();
- 
+
         // Get an instance of the generic articles model
         $articles = $factory->createModel('Articles', 'Site', ['ignore_request' => true]);
- 
+
         // Set application parameters in model
         $input     = $app->getInput();
         $appParams = $app->getParams();
         $articles->setState('params', $appParams);
- 
+
+        $articles->setState('list.start', 0);
         $articles->setState('filter.published', ContentComponent::CONDITION_PUBLISHED);
- 
+
         // Set the filters based on the module params
-        $articles->setState('list.limit', (int) $params->get('count', 3));
+        $articles->setState('list.limit', (int) $params->get('count', 0));
 
         // Access filter
         $access     = !ComponentHelper::getParams('com_content')->get('show_noauth');
         $authorised = Access::getAuthorisedViewLevels($app->getIdentity()->get('id'));
         $articles->setState('filter.access', $access);
 
-        $catids = $params->get('catid');
         $articles->setState('filter.category_id.include', (bool) $params->get('category_filtering_type', 1));
-
-        // Category filter
-        if ($catids) {
-            $articles->setState('filter.category_id', $catids);
-        }
 
         $items = $articles->getItems();
 
         // Display options
-        $show_author      = $params->get('show_author', 0);
         $show_date        = $params->get('show_date', 0);
-        $show_date_field  = $params->get('show_date_field', 'publish_up');
+        $show_date_field  = $params->get('show_date_field', 'created');
         $show_date_format = $params->get('show_date_format', 'Y-m-d H:i:s');
+        $show_author      = $params->get('show_author', 0);
         $show_introtext   = $params->get('show_introtext', 0);
         $introtext_limit  = $params->get('introtext_limit', 100);
 
@@ -129,16 +121,9 @@ class ArticlesCategoryHelper implements DatabaseAwareInterface
 
             $item->displayAuthorName = $show_author ? $item->author : '';
 
-            if ($show_introtext) {
-                $item->introtext = HTMLHelper::_('content.prepare', $item->introtext, '', 'mod_articles_category.content');
-                $item->introtext = self::_cleanIntrotext($item->introtext);
-            }
-
             $item->displayIntrotext = $show_introtext ? self::truncate($item->introtext, $introtext_limit) : '';
-            $item->displayReadmore  = $item->alternative_readmore;
-
         }
-        
+
         return $items;
     }
 
@@ -153,8 +138,8 @@ class ArticlesCategoryHelper implements DatabaseAwareInterface
      *
      * @deprecated  __DEPLOY_VERSION__  will be removed in 6.0
      *              Use the non-static method getArticles
-     *              Example: Factory::getApplication()->bootModule('mod_articles_category', 'site')
-     *                           ->getHelper('ArticlesCategoryHelper')
+     *              Example: Factory::getApplication()->bootModule('mod_articles_list_category', 'site')
+     *                           ->getHelper('ArticlesListCategoryHelper')
      *                           ->getArticles($params, Factory::getApplication())
      */
     public static function getList(&$params)
@@ -164,4 +149,51 @@ class ArticlesCategoryHelper implements DatabaseAwareInterface
 
         return (new self())->getArticles($params, $app);
     }
-} 
+
+    /**
+     * Method to truncate introtext
+     *
+     * The goal is to get the proper length plain text string with as much of
+     * the html intact as possible with all tags properly closed.
+     *
+     * @param   string  $html       The content of the introtext to be truncated
+     * @param   int     $maxLength  The maximum number of characters to render
+     *
+     * @return  string  The truncated string
+     *
+     * @since   1.6
+     */
+    public static function truncate($html, $maxLength = 0)
+    {
+        $baseLength = \strlen($html);
+
+        // First get the plain text string. This is the rendered text we want to end up with.
+        $ptString = HTMLHelper::_('string.truncate', $html, $maxLength, true, false);
+
+        for ($maxLength; $maxLength < $baseLength;) {
+            // Now get the string if we allow html.
+            $htmlString = HTMLHelper::_('string.truncate', $html, $maxLength, true, true);
+
+            // Now get the plain text from the html string.
+            $htmlStringToPtString = HTMLHelper::_('string.truncate', $htmlString, $maxLength, true, false);
+
+            // If the new plain text string matches the original plain text string we are done.
+            if ($ptString === $htmlStringToPtString) {
+                return $htmlString;
+            }
+
+            // Get the number of html tag characters in the first $maxlength characters
+            $diffLength = \strlen($ptString) - \strlen($htmlStringToPtString);
+
+            // Set new $maxlength that adjusts for the html tags
+            $maxLength += $diffLength;
+
+            if ($baseLength <= $maxLength || $diffLength <= 0) {
+                return $htmlString;
+            }
+        }
+
+        return $ptString;
+    }
+
+}

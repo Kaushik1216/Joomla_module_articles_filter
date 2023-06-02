@@ -1,29 +1,28 @@
 <?php
 
 /**
- * @package     [package]
- * @subpackage  articles list by category
+ * @package     kaushik.Site
+ * @subpackage  mod_articles_list_category
  *
- * @author     Kaushik Vishwakarma kaushik.vishwakarma2003@gmail.com
- * 
- * @copyright  [copyright]
- * @license    [license]
+ * @copyright   [copyright]
+ * @license     [license]
  */
 
 defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Layout\LayoutHelper;
+
 ?>
 <?php foreach ($items as $item) : ?>
 <li>
-    <?php if ($params->get('link_titles') == 1) : ?>
+    <?php ?>
         <?php $attributes = ['class' => 'mod-articles-category-title ' . $item->active]; ?>
         <?php $link = htmlspecialchars($item->link, ENT_COMPAT, 'UTF-8', false); ?>
         <?php $title = htmlspecialchars($item->title, ENT_COMPAT, 'UTF-8', false); ?>
         <?php echo HTMLHelper::_('link', $link, $title, $attributes); ?>
-    <?php else : ?>
-        <?php echo $item->title; ?>
-    <?php endif; ?>
+    <?php ?>
 
     <?php if ($params->get('show_author')) : ?>
         <span class="mod-articles-category-writtenby">
