@@ -85,12 +85,21 @@ class ArticlesListCategoryHelper implements DatabaseAwareInterface
         //set ordering direction
         $articlesList->setState('list.direction', $direction);
 
+        // Featured switch
+        $featured = $params->get('show_featured', '');
+
+        if ($featured === '') {
+            $articlesList->setState('filter.featured', 'show');
+        } elseif ($featured) {
+            $articlesList->setState('filter.featured', 'only');
+        } else {
+            $articlesList->setState('filter.featured', 'hide');
+        }
 
         // Access filter
         $access     = !ComponentHelper::getParams('com_content')->get('show_noauth');
         $authorised = Access::getAuthorisedViewLevels($app->getIdentity()->get('id'));
         $articlesList->setState('filter.access', $access);
-
 
         $items = $articlesList->getItems();
 
@@ -158,9 +167,6 @@ class ArticlesListCategoryHelper implements DatabaseAwareInterface
 
         return (new self())->getArticlesList($params, $app);
     }
-    
-
-    // This function is Taken from article category module 
 
     /**
      * Method to truncate introtext

@@ -7,7 +7,7 @@
 	<license>[license]</license>
 	<authorEmail>kaushik.vishwakarma2003@gmail.com</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>3.0.0</version>
+	<version>1.0.0</version>
 	<description>MOD_ARTICLES_LIST_CATEGORY_XML_DESCRIPTION</description>
 	<namespace path="src">Kaushik\Module\ArticlesListCategory</namespace>
 	<files>
@@ -66,6 +66,19 @@
 					>
 					<option value="DESC">MOD_ARTICLES_LIST_CATEGORY_OPTION_DIRECTION_DESC</option>
 					<option value="ASC">MOD_ARTICLES_LIST_CATEGORY_OPTION_DIRECTION_ASC</option>
+				</field>
+
+				<field
+					name="show_featured"
+					type="list"
+					label="MOD_ARTICLES_LIST_CATEGORY_FIELD_FEATURED_LABEL"
+					default=""
+					filter="integer"
+					validate="options"
+					>
+					<option value="">JSHOW</option>
+					<option value="0">JHIDE</option>
+					<option value="1">MOD_ARTICLES_LIST_CATEGORY_VALUE_ONLY_SHOW_FEATURED</option>
 				</field>
 
 			</fieldset>
