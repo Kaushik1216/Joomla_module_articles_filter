@@ -8,7 +8,7 @@
  * @license     [license]
  */
 
-namespace KaushikVishwakarma\Module\ArticlesListCategory\Site\Dispatcher;
+namespace Kaushik\Module\ArticlesListCategory\Site\Dispatcher;
 
 use Joomla\CMS\Dispatcher\AbstractModuleDispatcher;
 use Joomla\CMS\Helper\HelperFactoryAwareInterface;

@@ -8,7 +8,7 @@
  * @license     [license]
  */
 
-namespace KaushikVishwakarma\Module\ArticlesListCategory\Site\Helper;
+namespace Kaushik\Module\ArticlesListCategory\Site\Helper;
 
 use Joomla\Component\Content\Administrator\Extension\ContentComponent;
 use Joomla\Component\Content\Site\Helper\RouteHelper;
