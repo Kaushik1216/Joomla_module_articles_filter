@@ -17,7 +17,7 @@ use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 
 /**
- * The articles category module service provider.
+ * The articles list category module service provider.
  *
  * @since  __DEPLOY_VERSION__
  */
@@ -33,8 +33,8 @@ return new class () implements ServiceProviderInterface {
      */
     public function register(Container $container)
     {
-        $container->registerServiceProvider(new ModuleDispatcherFactory('\\Kaushik\\Module\\ArticlesListCategory'));
-        $container->registerServiceProvider(new HelperFactory('\\Kaushik\\Module\\ArticlesListCategory\\Site\\Helper'));
+        $container->registerServiceProvider(new ModuleDispatcherFactory('\\KaushikVishwakarma\\Module\\ArticlesListCategory'));
+        $container->registerServiceProvider(new HelperFactory('\\KaushikVishwakarma\\Module\\ArticlesListCategory\\Site\\Helper'));
 
         $container->registerServiceProvider(new Module());
     }

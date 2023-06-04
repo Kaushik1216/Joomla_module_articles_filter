@@ -8,7 +8,7 @@
  * @license     [license]
  */
 
-namespace Kaushik\Module\ArticlesListCategory\Site\Helper;
+namespace KaushikVishwakarma\Module\ArticlesListCategory\Site\Helper;
 
 use Joomla\Component\Content\Administrator\Extension\ContentComponent;
 use Joomla\Component\Content\Site\Helper\RouteHelper;
@@ -21,15 +21,14 @@ use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Registry\Registry;
+use Joomla\Utilities\ArrayHelper;
 
-// phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
-// phpcs:enable PSR1.Files.SideEffects
 
 /**
  * Helper for mod_articles_list_category
  *
- * @since  1.6
+ * @since  _DEPLOY_VERSION__
  */
 class ArticlesListCategoryHelper implements DatabaseAwareInterface
 {
@@ -45,34 +44,57 @@ class ArticlesListCategoryHelper implements DatabaseAwareInterface
      *
      * @since   __DEPLOY_VERSION__
      */
-    public function getArticles(Registry $params, SiteApplication $app)
+    public function getArticlesList(Registry $params, SiteApplication $app)
     {
         $factory = $app->bootComponent('com_content')->getMVCFactory();
 
         // Get an instance of the generic articles model
-        $articles = $factory->createModel('Articles', 'Site', ['ignore_request' => true]);
+        $articlesList = $factory->createModel('Articles', 'Site', ['ignore_request' => true]);
 
         // Set application parameters in model
         $input     = $app->getInput();
         $appParams = $app->getParams();
-        $articles->setState('params', $appParams);
+        $articlesList->setState('params', $appParams);
 
-        $articles->setState('list.start', 0);
-        $articles->setState('filter.published', ContentComponent::CONDITION_PUBLISHED);
+        $articlesList->setState('list.start', 0);
+        $articlesList->setState('filter.published', ContentComponent::CONDITION_PUBLISHED);
 
         // Set the filters based on the module params
-        $articles->setState('list.limit', (int) $params->get('count', 0));
+        $articlesList->setState('list.limit', (int) $params->get('count', 0));
+
+        // Set Category filter
+
+        $articlesList->setState('filter.category_id', $params->get('catid', []));
+
+        // Set ordering
+        $order_map = [
+            'm_dsc'  => 'a.modified , a.created',
+            'mc_dsc' => 'a.modified',
+            'c_dsc'  => 'a.created',
+            'p_dsc'  => 'a.publish_up',
+        ];
+
+        $ordering = ArrayHelper::getValue($order_map, $params->get('ordering', 'p_dsc'), 'a.publish_up');
+
+        //Get Ascending or  Descending
+        $direction = $params->get('direction' , 'DESC');
+
+        //set ordering in articles
+        $articlesList->setState('list.ordering', $ordering);
+
+        //set ordering direction
+        $articlesList->setState('list.direction', $direction);
+
 
         // Access filter
         $access     = !ComponentHelper::getParams('com_content')->get('show_noauth');
         $authorised = Access::getAuthorisedViewLevels($app->getIdentity()->get('id'));
-        $articles->setState('filter.access', $access);
+        $articlesList->setState('filter.access', $access);
 
-        $articles->setState('filter.category_id.include', (bool) $params->get('category_filtering_type', 1));
 
-        $items = $articles->getItems();
+        $items = $articlesList->getItems();
 
-        // Display options
+        // Geting Display options
         $show_date        = $params->get('show_date', 0);
         $show_date_field  = $params->get('show_date_field', 'created');
         $show_date_format = $params->get('show_date_format', 'Y-m-d H:i:s');
@@ -80,22 +102,11 @@ class ArticlesListCategoryHelper implements DatabaseAwareInterface
         $show_introtext   = $params->get('show_introtext', 0);
         $introtext_limit  = $params->get('introtext_limit', 100);
 
-        // Find current Article ID if on an article page
-        $option = $input->get('option');
-        $view   = $input->get('view');
-
-        if ($option === 'com_content' && $view === 'article') {
-            $active_article_id = $input->getInt('id');
-        } else {
-            $active_article_id = 0;
-        }
-
         // Prepare data for display using display options
         foreach ($items as &$item) {
             $item->slug = $item->id . ':' . $item->alias;
 
             if ($access || \in_array($item->access, $authorised)) {
-                // We know that user has the privilege to view the article
                 $item->link = Route::_(RouteHelper::getArticleRoute($item->slug, $item->catid, $item->language));
             } else {
                 $menu      = $app->getMenu();
@@ -111,8 +122,6 @@ class ArticlesListCategoryHelper implements DatabaseAwareInterface
                 $item->link = Route::_('index.php?option=com_users&view=login&Itemid=' . $Itemid);
             }
 
-            // Used for styling the active article
-            $item->active      = $item->id == $active_article_id ? 'active' : '';
             $item->displayDate = '';
 
             if ($show_date) {
@@ -147,8 +156,11 @@ class ArticlesListCategoryHelper implements DatabaseAwareInterface
         /* @var SiteApplication $app */
         $app = Factory::getApplication();
 
-        return (new self())->getArticles($params, $app);
+        return (new self())->getArticlesList($params, $app);
     }
+    
+
+    // This function is Taken from article category module 
 
     /**
      * Method to truncate introtext

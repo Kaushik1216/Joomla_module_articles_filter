@@ -8,15 +8,13 @@
  * @license     [license]
  */
 
-namespace Kaushik\Module\ArticlesListCategory\Site\Dispatcher;
+namespace KaushikVishwakarma\Module\ArticlesListCategory\Site\Dispatcher;
 
 use Joomla\CMS\Dispatcher\AbstractModuleDispatcher;
 use Joomla\CMS\Helper\HelperFactoryAwareInterface;
 use Joomla\CMS\Helper\HelperFactoryAwareTrait;
 
-// phpcs:disable PSR1.Files.SideEffects
 \defined('JPATH_PLATFORM') or die;
-// phpcs:enable PSR1.Files.SideEffects
 
 /**
  * Dispatcher class for mod_articles_list_category
@@ -39,7 +37,7 @@ class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareI
         $data   = parent::getLayoutData();
         $params = $data['params'];
 
-        $data['list'] = $this->getHelperFactory()->getHelper('ArticlesListCategoryHelper')->getArticles($params, $data['app']);
+        $data['list'] = $this->getHelperFactory()->getHelper('ArticlesListCategoryHelper')->getArticlesList($params, $data['app']);
 
         return $data;
     }
